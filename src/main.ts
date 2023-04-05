@@ -4,7 +4,8 @@ import {rawMessages} from './utils/getFormattedGitMessages'
 import {createComparisonMD} from './utils/createComparisonMD'
 
 async function run() {
-  const str = getSimpleComparison(getGroups(await rawMessages()), '')
+  const res = await rawMessages()
+  const str = getSimpleComparison(getGroups(res), '')
 
   createComparisonMD(str)
 }
