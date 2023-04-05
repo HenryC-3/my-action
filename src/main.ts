@@ -5,7 +5,7 @@ import {createComparisonMD} from './utils/createComparisonMD'
 
 async function run() {
   const res = await rawMessages()
-  const str = getSimpleComparison(getGroups(res), '')
+  const str = getSimpleComparison(getGroups(res), 'testURL')
 
   createComparisonMD(str)
 }

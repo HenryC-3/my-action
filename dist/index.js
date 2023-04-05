@@ -22,7 +22,8 @@ const getFormattedGitMessages_1 = __nccwpck_require__(7213);
 const createComparisonMD_1 = __nccwpck_require__(804);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const str = (0, getSimpleComparison_1.getSimpleComparison)((0, getGroups_1.getGroups)(yield (0, getFormattedGitMessages_1.rawMessages)()), '');
+        const res = yield (0, getFormattedGitMessages_1.rawMessages)();
+        const str = (0, getSimpleComparison_1.getSimpleComparison)((0, getGroups_1.getGroups)(res), 'testURL');
         (0, createComparisonMD_1.createComparisonMD)(str);
     });
 }
@@ -118,7 +119,22 @@ d1fa267|Initial commit
  */
 function rawMessages() {
     return __awaiter(this, void 0, void 0, function* () {
-        return (yield (0, exec_1.exec)("git log --pretty=format:'%h|%s'"));
+        let output = '';
+        let error = '';
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                },
+                stderr: (data) => {
+                    error += data.toString();
+                }
+            }
+        };
+        yield (0, exec_1.exec)('git', ['log', "--pretty=format:'%h|%s'"], options);
+        console.log('Output:', output);
+        console.log('Error:', error);
+        return output;
     });
 }
 exports.rawMessages = rawMessages;

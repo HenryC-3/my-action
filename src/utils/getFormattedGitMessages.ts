@@ -12,8 +12,25 @@ a3b491d|init
 d1fa267|Initial commit
 ```
  */
-export async function rawMessages() {
-  return (await exec(
-    "git log --pretty=format:'%h|%s'"
-  )) as unknown as Promise<string>
+export async function rawMessages(): Promise<string> {
+  let output = ''
+  let error = ''
+
+  const options = {
+    listeners: {
+      stdout: (data: Buffer) => {
+        output += data.toString()
+      },
+      stderr: (data: Buffer) => {
+        error += data.toString()
+      }
+    }
+  }
+
+  await exec('git', ['log', "--pretty=format:'%h|%s'"], options)
+
+  console.log('Output:', output)
+  console.log('Error:', error)
+
+  return output
 }
