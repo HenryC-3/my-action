@@ -1,19 +1,12 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import {getGroups} from './utils/getGroups'
+import {getSimpleComparison} from './utils/getSimpleComparison'
+import {rawMessages} from './utils/getFormattedGitMessages'
+import {createComparisonMD} from './utils/createComparisonMD'
 
-async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+async function run() {
+  const str = getSimpleComparison(getGroups(await rawMessages()), '')
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
-  }
+  createComparisonMD(str)
 }
 
 run()
