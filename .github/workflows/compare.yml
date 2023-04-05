@@ -1,0 +1,23 @@
+name: Create compare
+
+on: [push]
+
+jobs:
+  create-compare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3.5.1
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: npm i
+
+      # If index.js was different than expected, upload the expected version as an artifact
+      - uses: HenryC-3/my-action@pre-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
