@@ -5,6 +5,7 @@ export async function createComparisonMD(content: string) {
   try {
     // Get the repository information from the context
     const repo = github.context.repo
+    console.log(github.context)
     const owner = repo.owner
     const repoName = repo.repo
     const token = process.env.GITHUB_TOKEN as string
