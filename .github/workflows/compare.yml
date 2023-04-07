@@ -18,6 +18,6 @@ jobs:
         run: npm i
 
       # If index.js was different than expected, upload the expected version as an artifact
-      - uses: HenryC-3/my-action@pre-release
+      - uses: HenryC-3/my-action@reproduce-github-undefined
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
