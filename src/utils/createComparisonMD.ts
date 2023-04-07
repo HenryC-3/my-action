@@ -1,10 +1,10 @@
-import github from '@actions/github'
+import {context, getOctokit} from '@actions/github'
 import fs from 'fs'
 
 export async function createComparisonMD(content: string) {
   try {
     // Get the repository information from the context
-    const {owner, repo: repoName} = github.context.repo
+    const {owner, repo: repoName} = context.repo
 
     const token = process.env.GITHUB_TOKEN as string
     if (!token) throw 'GITHUB_TOKEN is not configured yet'
@@ -16,7 +16,7 @@ export async function createComparisonMD(content: string) {
     fs.writeFileSync(filename, content)
 
     // Create a new commit with the changelog file
-    const octokit = github.getOctokit(token)
+    const octokit = getOctokit(token)
     await octokit.rest.repos.createOrUpdateFileContents({
       owner: owner,
       repo: repoName,

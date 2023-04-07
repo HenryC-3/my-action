@@ -51,13 +51,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createComparisonMD = void 0;
-const github_1 = __importDefault(__nccwpck_require__(5438));
+const github_1 = __nccwpck_require__(5438);
 const fs_1 = __importDefault(__nccwpck_require__(5747));
 function createComparisonMD(content) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get the repository information from the context
-            const { owner, repo: repoName } = github_1.default.context.repo;
+            const { owner, repo: repoName } = github_1.context.repo;
             const token = process.env.GITHUB_TOKEN;
             if (!token)
                 throw 'GITHUB_TOKEN is not configured yet';
@@ -66,7 +66,7 @@ function createComparisonMD(content) {
             // Write the content to a file in the repository
             fs_1.default.writeFileSync(filename, content);
             // Create a new commit with the changelog file
-            const octokit = github_1.default.getOctokit(token);
+            const octokit = (0, github_1.getOctokit)(token);
             yield octokit.rest.repos.createOrUpdateFileContents({
                 owner: owner,
                 repo: repoName,
