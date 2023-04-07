@@ -57,9 +57,7 @@ function createComparisonMD(content) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get the repository information from the context
-            const repo = github_1.default.context.repo;
-            const owner = repo.owner;
-            const repoName = repo.repo;
+            const { owner, repo: repoName } = github_1.default.context.repo;
             const token = process.env.GITHUB_TOKEN;
             if (!token)
                 throw 'GITHUB_TOKEN is not configured yet';
