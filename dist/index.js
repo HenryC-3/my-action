@@ -51,23 +51,23 @@ exports.createComparisonMD = void 0;
 const github_1 = __nccwpck_require__(5438);
 const fs_1 = __importDefault(__nccwpck_require__(5747));
 const constants_1 = __nccwpck_require__(2842);
-const child_process_1 = __nccwpck_require__(3129);
 const { owner, repo: repo } = github_1.context.repo;
+// Get the repository information from the context
+const token = (0, constants_1.getToken)();
+// Create a new commit with the changelog file
+const octokit = (0, github_1.getOctokit)(token);
 function createComparisonMD(content) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Get the repository information from the context
-            const token = (0, constants_1.getToken)();
             // Define the filename and content for the changelog
             // Write the content to a file in the repository
             fs_1.default.writeFileSync(constants_1.filePath, content);
-            // Create a new commit with the changelog file
-            const octokit = (0, github_1.getOctokit)(token);
+            const sha = yield getSHA();
             yield octokit.rest.repos.createOrUpdateFileContents({
                 owner: owner,
                 repo,
                 path: constants_1.filePath,
-                sha: getSHA(),
+                sha,
                 message: 'update compare.md',
                 content: Buffer.from(content).toString('base64')
             });
@@ -80,8 +80,19 @@ function createComparisonMD(content) {
 }
 exports.createComparisonMD = createComparisonMD;
 function getSHA() {
-    const sha = (0, child_process_1.execSync)('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-    return sha;
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+            owner,
+            repo,
+            path: constants_1.filePath,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+        // TODO Don't know why the sha is not on the data [Repository contents - GitHub Docs](https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-repository-content--parameters)
+        // @ts-ignore
+        return res.data.sha;
+    });
 }
 
 
