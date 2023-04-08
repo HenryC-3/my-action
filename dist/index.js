@@ -16,15 +16,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const getGroups_1 = __nccwpck_require__(8302);
-const getSimpleComparison_1 = __nccwpck_require__(9308);
-const getFormattedGitMessages_1 = __nccwpck_require__(7213);
-const createComparisonMD_1 = __nccwpck_require__(804);
+const commitChanges_1 = __nccwpck_require__(5720);
+const createContent_1 = __nccwpck_require__(4705);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield (0, getFormattedGitMessages_1.rawMessages)();
-        const str = (0, getSimpleComparison_1.getSimpleComparison)((0, getGroups_1.getGroups)(res), 'testURL');
-        (0, createComparisonMD_1.createComparisonMD)(str);
+        const content = yield (0, createContent_1.createContent)();
+        (0, commitChanges_1.createComparisonMD)(content);
     });
 }
 run();
@@ -32,7 +29,7 @@ run();
 
 /***/ }),
 
-/***/ 804:
+/***/ 5720:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -53,24 +50,24 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createComparisonMD = void 0;
 const github_1 = __nccwpck_require__(5438);
 const fs_1 = __importDefault(__nccwpck_require__(5747));
+const constants_1 = __nccwpck_require__(2842);
+const child_process_1 = __nccwpck_require__(3129);
+const { owner, repo: repo } = github_1.context.repo;
 function createComparisonMD(content) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get the repository information from the context
-            const { owner, repo: repoName } = github_1.context.repo;
-            const token = process.env.GITHUB_TOKEN;
-            if (!token)
-                throw 'GITHUB_TOKEN is not configured yet';
+            const token = (0, constants_1.getToken)();
             // Define the filename and content for the changelog
-            const filename = 'compare.md';
             // Write the content to a file in the repository
-            fs_1.default.writeFileSync(filename, content);
+            fs_1.default.writeFileSync(constants_1.filePath, content);
             // Create a new commit with the changelog file
             const octokit = (0, github_1.getOctokit)(token);
             yield octokit.rest.repos.createOrUpdateFileContents({
                 owner: owner,
-                repo: repoName,
-                path: filename,
+                repo,
+                path: constants_1.filePath,
+                sha: getSHA(),
                 message: 'update compare.md',
                 content: Buffer.from(content).toString('base64')
             });
@@ -82,11 +79,34 @@ function createComparisonMD(content) {
     });
 }
 exports.createComparisonMD = createComparisonMD;
+function getSHA() {
+    const sha = (0, child_process_1.execSync)('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+    return sha;
+}
 
 
 /***/ }),
 
-/***/ 7213:
+/***/ 2842:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.filePath = exports.getToken = void 0;
+function getToken() {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token)
+        throw 'GITHUB_TOKEN is not configured yet';
+    return token;
+}
+exports.getToken = getToken;
+exports.filePath = 'compare.md';
+
+
+/***/ }),
+
+/***/ 4705:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -101,53 +121,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.rawMessages = void 0;
+exports.getCurrentRepoURL = exports.getRawMessages = exports.gitMessageParser = exports.getSimpleComparison = exports.getGroups = exports.createContent = void 0;
+const parser_1 = __nccwpck_require__(4523);
 const exec_1 = __nccwpck_require__(1514);
-/**
- * @description 返回以下形式的 git commit message
-```text
-0065fdf|拆分阶段:重构结束
-bcb44c8|拆分阶段:拆分中转数据计算函数
-e32dc9e|拆分阶段:使用中转数据
-9cefe2d|split phase: extract function
-d9b2cef|split phase: init
-a3b491d|init
-d1fa267|Initial commit
-```
- */
-function rawMessages() {
+function createContent() {
     return __awaiter(this, void 0, void 0, function* () {
-        let output = '';
-        let error = '';
-        const options = {
-            listeners: {
-                stdout: (data) => {
-                    output += data.toString();
-                },
-                stderr: (data) => {
-                    error += data.toString();
-                }
-            }
-        };
-        yield (0, exec_1.exec)('git', ['log', "--pretty=format:'%h|%s'"], options);
-        console.log('Output:', output);
-        console.log('Error:', error);
-        return output;
+        const raw = yield getRawMessages();
+        return getSimpleComparison(getGroups(raw), getCurrentRepoURL());
     });
 }
-exports.rawMessages = rawMessages;
-
-
-/***/ }),
-
-/***/ 8302:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getGroups = void 0;
-const gitMessageParser_1 = __nccwpck_require__(6387);
+exports.createContent = createContent;
 function getGroups(msgChunk) {
     const groups = [];
     // 获取 commit message，形式为 SHA|Commit message，按提交的先后次序排列
@@ -159,7 +142,7 @@ function getGroups(msgChunk) {
         // 检查 commitMsg 中是否有 `type: msg` 中的 type
         if (!isTypeExist(commitMsg))
             continue;
-        const { type, text } = (0, gitMessageParser_1.gitMessageParser)(commitMsg);
+        const { type, text } = gitMessageParser(commitMsg);
         const exist = isGroupExist(type);
         // 该 type 存在，表示该组存在，将 commit id 和 commit message 存入该组
         if (type && exist) {
@@ -190,17 +173,6 @@ function getGroups(msgChunk) {
     }
 }
 exports.getGroups = getGroups;
-
-
-/***/ }),
-
-/***/ 9308:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSimpleComparison = void 0;
 function getSimpleComparison(groups, url) {
     let content = '';
     groups.forEach(group => {
@@ -213,18 +185,6 @@ function getSimpleComparison(groups, url) {
     return content.trim();
 }
 exports.getSimpleComparison = getSimpleComparison;
-
-
-/***/ }),
-
-/***/ 6387:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.gitMessageParser = void 0;
-const parser_1 = __nccwpck_require__(4523);
 function gitMessageParser(msg) {
     const tree = (0, parser_1.parser)(msg);
     const result = {};
@@ -241,6 +201,44 @@ function gitMessageParser(msg) {
     return result;
 }
 exports.gitMessageParser = gitMessageParser;
+/**
+ * @description 返回以下形式的 git commit message
+```text
+0065fdf|拆分阶段:重构结束
+bcb44c8|拆分阶段:拆分中转数据计算函数
+e32dc9e|拆分阶段:使用中转数据
+9cefe2d|split phase: extract function
+d9b2cef|split phase: init
+a3b491d|init
+d1fa267|Initial commit
+```
+ */
+function getRawMessages() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let output = '';
+        let error = '';
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                },
+                stderr: (data) => {
+                    error += data.toString();
+                }
+            }
+        };
+        yield (0, exec_1.exec)('git', ['log', "--pretty=format:'%h|%s'"], options);
+        console.log('Output:', output);
+        console.log('Error:', error);
+        return output;
+    });
+}
+exports.getRawMessages = getRawMessages;
+// TODO
+function getCurrentRepoURL() {
+    return 'user-name/repo-name';
+}
+exports.getCurrentRepoURL = getCurrentRepoURL;
 
 
 /***/ }),

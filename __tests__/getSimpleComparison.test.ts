@@ -1,4 +1,4 @@
-import {getSimpleComparison} from '../src/utils/getSimpleComparison'
+import {getSimpleComparison} from '../src/utils/createContent'
 import {expect, test} from '@jest/globals'
 
 const testGroups = [

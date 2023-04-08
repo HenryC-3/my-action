@@ -1,4 +1,4 @@
-import {gitMessageParser} from '../src/utils/gitMessageParser'
+import {gitMessageParser} from '../src/utils/createContent'
 import {expect, test} from '@jest/globals'
 
 test('should get object 1', () => {

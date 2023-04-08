@@ -1,13 +1,9 @@
-import {getGroups} from './utils/getGroups'
-import {getSimpleComparison} from './utils/getSimpleComparison'
-import {rawMessages} from './utils/getFormattedGitMessages'
-import {createComparisonMD} from './utils/createComparisonMD'
+import {createComparisonMD} from './utils/commitChanges'
+import {createContent} from './utils/createContent'
 
 async function run() {
-  const res = await rawMessages()
-  const str = getSimpleComparison(getGroups(res), 'testURL')
-
-  createComparisonMD(str)
+  const content = await createContent()
+  createComparisonMD(content)
 }
 
 run()
