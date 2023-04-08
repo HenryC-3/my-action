@@ -5,23 +5,23 @@ import {execSync} from 'child_process'
 
 const {owner, repo: repo} = context.repo
 
+// Get the repository information from the context
+const token = getToken()
+// Create a new commit with the changelog file
+const octokit = getOctokit(token)
+
 export async function createComparisonMD(content: string) {
   try {
-    // Get the repository information from the context
-
-    const token = getToken()
-
     // Define the filename and content for the changelog
     // Write the content to a file in the repository
     fs.writeFileSync(filePath, content)
+    const sha = await getSHA()
 
-    // Create a new commit with the changelog file
-    const octokit = getOctokit(token)
     await octokit.rest.repos.createOrUpdateFileContents({
       owner: owner,
       repo,
       path: filePath,
-      sha: getSHA(), // 必须提供 sha 否则容易报错
+      sha, // 必须提供 sha 否则容易报错
       message: 'update compare.md',
       content: Buffer.from(content).toString('base64')
     })
@@ -31,7 +31,19 @@ export async function createComparisonMD(content: string) {
   }
 }
 
-function getSHA() {
-  const sha = execSync('git rev-parse HEAD', {encoding: 'utf8'}).trim()
-  return sha
+async function getSHA() {
+  const res = await octokit.request(
+    'GET /repos/{owner}/{repo}/contents/{path}',
+    {
+      owner,
+      repo,
+      path: filePath,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    }
+  )
+  // TODO Don't know why the sha is not on the data [Repository contents - GitHub Docs](https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28#get-repository-content--parameters)
+  // @ts-ignore
+  return res.data.sha
 }
