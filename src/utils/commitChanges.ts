@@ -1,7 +1,6 @@
 import {context, getOctokit} from '@actions/github'
-import fs from 'fs'
+import {writeFileSync, existsSync} from 'fs'
 import {filePath, getToken} from './constants'
-import {execSync} from 'child_process'
 
 const {owner, repo: repo} = context.repo
 
@@ -14,7 +13,8 @@ export async function createComparisonMD(content: string) {
   try {
     // Define the filename and content for the changelog
     // Write the content to a file in the repository
-    fs.writeFileSync(filePath, content)
+    if (existsSync(filePath)) writeFileSync(filePath, content)
+
     const sha = await getSHA()
 
     await octokit.rest.repos.createOrUpdateFileContents({

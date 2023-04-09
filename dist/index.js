@@ -43,13 +43,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createComparisonMD = void 0;
 const github_1 = __nccwpck_require__(5438);
-const fs_1 = __importDefault(__nccwpck_require__(5747));
+const fs_1 = __nccwpck_require__(5747);
 const constants_1 = __nccwpck_require__(2842);
 const { owner, repo: repo } = github_1.context.repo;
 // Get the repository information from the context
@@ -61,7 +58,8 @@ function createComparisonMD(content) {
         try {
             // Define the filename and content for the changelog
             // Write the content to a file in the repository
-            fs_1.default.writeFileSync(constants_1.filePath, content);
+            if ((0, fs_1.existsSync)(constants_1.filePath))
+                (0, fs_1.writeFileSync)(constants_1.filePath, content);
             const sha = yield getSHA();
             yield octokit.rest.repos.createOrUpdateFileContents({
                 owner: owner,
@@ -240,7 +238,6 @@ function getRawMessages() {
         };
         yield (0, exec_1.exec)('git', ['log', "--pretty=format:'%h|%s'"], options);
         console.log('Output:', output);
-        console.log('Error:', error);
         return output;
     });
 }

@@ -119,7 +119,6 @@ export async function getRawMessages(): Promise<string> {
   await exec('git', ['log', "--pretty=format:'%h|%s'"], options)
 
   console.log('Output:', output)
-  console.log('Error:', error)
 
   return output
 }
