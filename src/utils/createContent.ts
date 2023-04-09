@@ -125,5 +125,5 @@ export async function getRawMessages(): Promise<string> {
 
 // TODO
 export function getCurrentRepoURL() {
-  return 'user-name/repo-name'
+  return `https://github.com/${process.env.GITHUB_REPOSITORY}`
 }

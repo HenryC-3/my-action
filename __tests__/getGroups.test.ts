@@ -1,4 +1,4 @@
-import {getGroups} from '../src/utils/getGroups'
+import {getGroups} from '../src/utils/createContent'
 import {expect, test} from '@jest/globals'
 
 const str1 = `bcb44c8|拆分阶段:拆分中转数据计算函数

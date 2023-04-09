@@ -244,7 +244,7 @@ function getRawMessages() {
 exports.getRawMessages = getRawMessages;
 // TODO
 function getCurrentRepoURL() {
-    return 'user-name/repo-name';
+    return `https://github.com/${process.env.GITHUB_REPOSITORY}`;
 }
 exports.getCurrentRepoURL = getCurrentRepoURL;
 
