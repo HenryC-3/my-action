@@ -1,6 +1,7 @@
 import {context, getOctokit} from '@actions/github'
 import {writeFileSync, existsSync} from 'fs'
 import {filePath, getToken} from './constants'
+import {exec} from '@actions/exec'
 
 const {owner, repo: repo} = context.repo
 
@@ -16,6 +17,7 @@ export async function createComparisonMD(content: string) {
     if (existsSync(filePath)) writeFileSync(filePath, content)
 
     const sha = await getSHA()
+    await exec('echo', [content])
 
     await octokit.rest.repos.createOrUpdateFileContents({
       owner: owner,
