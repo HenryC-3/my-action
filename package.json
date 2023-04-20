@@ -10,7 +10,7 @@
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
     "package": "npm run build && ncc build --source-map --license licenses.txt",
-    "test": "jest"
+    "test": "git checkout test-action && git commit --allow-empty -m 'ci' && git push origin test-action && gh repo -view --web && git checkout pre-release"
   },
   "repository": {
     "type": "git",
