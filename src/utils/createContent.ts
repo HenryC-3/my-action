@@ -66,7 +66,7 @@ export function getSimpleComparison(groups: Groups, url: string) {
 
     const link =
       `- [${linkName}](${url}/compare/${first}...${last}?diff=split)`.replace(
-        '`',
+        "'",
         ''
       )
     content = content + link + '\n'

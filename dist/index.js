@@ -190,7 +190,7 @@ function getSimpleComparison(groups, url) {
         const linkName = group.groupName;
         const first = group.commits[0].id;
         const last = group.commits[group.commits.length - 1].id;
-        const link = `- [${linkName}](${url}/compare/${first}...${last}?diff=split)`.replace('`', '');
+        const link = `- [${linkName}](${url}/compare/${first}...${last}?diff=split)`.replace("'", '');
         content = content + link + '\n';
     });
     return content.trim();
