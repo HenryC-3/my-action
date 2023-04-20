@@ -48,6 +48,7 @@ exports.createComparisonMD = void 0;
 const github_1 = __nccwpck_require__(5438);
 const fs_1 = __nccwpck_require__(5747);
 const constants_1 = __nccwpck_require__(2842);
+const exec_1 = __nccwpck_require__(1514);
 const { owner, repo: repo } = github_1.context.repo;
 // Get the repository information from the context
 const token = (0, constants_1.getToken)();
@@ -61,6 +62,7 @@ function createComparisonMD(content) {
             if ((0, fs_1.existsSync)(constants_1.filePath))
                 (0, fs_1.writeFileSync)(constants_1.filePath, content);
             const sha = yield getSHA();
+            yield (0, exec_1.exec)('echo', [content]);
             yield octokit.rest.repos.createOrUpdateFileContents({
                 owner: owner,
                 repo,
