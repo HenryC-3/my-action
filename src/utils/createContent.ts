@@ -64,11 +64,9 @@ export function getSimpleComparison(groups: Groups, url: string) {
     const first = group.commits[0].id
     const last = group.commits[group.commits.length - 1].id
 
-    const link =
-      `- [${linkName}](${url}/compare/${first}...${last}?diff=split)`.replace(
-        "'",
-        ''
-      )
+    const link = `- [${linkName}](${url}/compare/${first}...${last}?diff=split)`
+      .replace("'", '')
+      .replace("'", '')
     content = content + link + '\n'
   })
   return content.trim()
