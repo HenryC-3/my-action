@@ -1,11 +1,6 @@
-name: 'Your name here'
+name: 'create compare commit link'
 description: 'Provide a description here'
-author: 'Your name or organization here'
-inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+author: 'HenryC-3'
 runs:
   using: 'node16'
   main: 'dist/index.js'
